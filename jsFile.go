@@ -36,7 +36,7 @@ func (jsf *JSFile) parse(path string) {
 		scanner := bufio.NewScanner(handle)
 		for scanner.Scan() {
 			line := scanner.Text()
-			jsf.handleOneLineImportStatement(line)
+			jsf.imports = append(jsf.imports, handleOneLineImportStatement(line)...)
 		}
 	}
 }
@@ -47,7 +47,8 @@ func isOneLineImportStatement(line string) bool {
 	return strings.HasPrefix(line, importKeyword) && strings.Contains(line, " from ")
 }
 
-func (jsf *JSFile) handleOneLineImportStatement(line string) {
+func handleOneLineImportStatement(line string) []jsImport {
+	var result []jsImport
 	if isOneLineImportStatement(line) {
 		tmp := line[len(importKeyword):len(line)]
 		parts := strings.Split(tmp, " from ")
@@ -61,23 +62,28 @@ func (jsf *JSFile) handleOneLineImportStatement(line string) {
 			}
 			defaultImportName := strings.Trim(importString[0], " ,")
 			i.name = defaultImportName
-			jsf.imports = append(jsf.imports, i)
+			result = append(result, i)
 			fmt.Println("added", i)
 		} else {
-			jsf.handleNamedImports(strings.Trim(parts[0], " ,"), parts[1])
+			namedTmp := handleNamedImports(strings.Trim(parts[0], " ,"), parts[1])
+			result = append(result, namedTmp...)
 		}
 
 		if len(importString) == 2 {
-			jsf.handleNamedImports(importString[1], parts[1])
+			namedTmp := handleNamedImports(importString[1], parts[1])
+			result = append(result, namedTmp...)
 		}
 
 	}
+	return result
 }
 
-func (jsf *JSFile) handleNamedImports(imports string, path string) {
+func handleNamedImports(imports string, path string) []jsImport {
 	imports = strings.Replace(imports, "{", "", 1)
 	imports = strings.Replace(imports, "}", "", 1)
 	namedImports := strings.Split(imports, ",")
+
+	var result []jsImport
 
 	for s := range namedImports {
 		i := jsImport{
@@ -85,9 +91,9 @@ func (jsf *JSFile) handleNamedImports(imports string, path string) {
 			fromPath:      path,
 			name:          strings.Trim(namedImports[s], " ,"),
 		}
-
-		jsf.imports = append(jsf.imports, i)
+		result = append(result, i)
 		fmt.Println("added", i)
 	}
 
+	return result
 }

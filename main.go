@@ -21,7 +21,7 @@ func walk(path string, info os.FileInfo, err error) error {
 		}
 		fmt.Println("## start processing ", path)
 		jsf.parse(path)
-		fmt.Println("## end processing ", path)
+		fmt.Println("## done ")
 	}
 	return nil
 }
