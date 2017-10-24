@@ -34,66 +34,44 @@ func (jsf *JSFile) parse(path string) {
 	} else {
 		defer handle.Close()
 		scanner := bufio.NewScanner(handle)
+		scanner.Split(bufio.ScanWords)
 		for scanner.Scan() {
-			line := scanner.Text()
-			jsf.imports = append(jsf.imports, handleOneLineImportStatement(line)...)
-		}
-	}
-}
+			token := scanner.Text()
 
-const importKeyword = "import "
-
-func isOneLineImportStatement(line string) bool {
-	return strings.HasPrefix(line, importKeyword) && strings.Contains(line, " from ")
-}
-
-func handleOneLineImportStatement(line string) []jsImport {
-	var result []jsImport
-	if isOneLineImportStatement(line) {
-		tmp := line[len(importKeyword):len(line)]
-		parts := strings.Split(tmp, " from ")
-		isDefaultImport := !strings.HasPrefix(parts[0], "{")
-		importString := strings.SplitN(parts[0], " ", 2)
-
-		if isDefaultImport {
-			i := jsImport{
-				defaultImport: isDefaultImport,
-				fromPath:      parts[1],
+			if token == "import" {
+				parseImport(scanner)
 			}
-			defaultImportName := strings.Trim(importString[0], " ,")
-			i.name = defaultImportName
-			result = append(result, i)
-			fmt.Println("added", i)
-		} else {
-			namedTmp := handleNamedImports(strings.Trim(parts[0], " ,"), parts[1])
-			result = append(result, namedTmp...)
-		}
 
-		if len(importString) == 2 {
-			namedTmp := handleNamedImports(importString[1], parts[1])
-			result = append(result, namedTmp...)
 		}
-
 	}
-	return result
 }
 
-func handleNamedImports(imports string, path string) []jsImport {
-	imports = strings.Replace(imports, "{", "", 1)
-	imports = strings.Replace(imports, "}", "", 1)
-	namedImports := strings.Split(imports, ",")
-
-	var result []jsImport
-
-	for s := range namedImports {
-		i := jsImport{
-			defaultImport: false,
-			fromPath:      path,
-			name:          strings.Trim(namedImports[s], " ,"),
+func parseImport(scanner *bufio.Scanner) {
+	for scanner.Scan() {
+		token := scanner.Text()
+		if token == "from" {
+			scanner.Scan()
+			// path := scanner.Text()
+			// fmt.Println(path)
+			break
 		}
-		result = append(result, i)
-		fmt.Println("added", i)
-	}
 
-	return result
+		if strings.Contains(token, "{") {
+			fmt.Println(token)
+			// parseNamedImports(scanner)
+		} else {
+			fmt.Println(token)
+		}
+
+	}
+}
+
+func parseNamedImports(scanner *bufio.Scanner) {
+	for scanner.Scan() {
+		token := scanner.Text()
+		if strings.Contains(token, "}") {
+			break
+		}
+
+	}
 }

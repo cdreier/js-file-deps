@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,9 +18,9 @@ func walk(path string, info os.FileInfo, err error) error {
 		jsf := JSFile{
 			path: path,
 		}
-		fmt.Println("## start processing ", path)
+		// fmt.Println("## start processing ", path)
 		jsf.parse(path)
-		fmt.Println("## done ")
+		// fmt.Println("## done ")
 	}
 	return nil
 }
