@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -24,9 +23,6 @@ var rootHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	holder := dataHolder{}
 	filepath.Walk("./example", holder.walk)
 
-	jsonData, _ := json.Marshal(holder)
-	holder.JSON = string(jsonData)
-
 	t, _ := template.ParseFiles("frontend/index.html")
 	t.Execute(w, holder)
 })
@@ -35,7 +31,6 @@ const fileExtension = ".js"
 
 type dataHolder struct {
 	Data []JSFile `json:"data,omitempty"`
-	JSON string   `json:"JSON,omitempty"`
 }
 
 func (holder *dataHolder) walk(path string, info os.FileInfo, err error) error {
