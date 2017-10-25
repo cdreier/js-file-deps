@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -10,15 +9,15 @@ import (
 
 // JSFile is the container for parsed js files
 type JSFile struct {
-	path    string
-	exports []jsExport
-	imports []jsImport
+	Path    string     `json:"path,omitempty"`
+	Exports []jsExport `json:"exports,omitempty"`
+	Imports []jsImport `json:"imports,omitempty"`
 }
 
 type jsImport struct {
-	fromPath      string
-	name          string
-	defaultImport bool
+	FromPath      string `json:"from_path,omitempty"`
+	Name          string `json:"name,omitempty"`
+	DefaultImport bool   `json:"default_import,omitempty"`
 }
 
 type jsExport struct {
@@ -34,44 +33,18 @@ func (jsf *JSFile) parse(path string) {
 	} else {
 		defer handle.Close()
 		scanner := bufio.NewScanner(handle)
-		scanner.Split(bufio.ScanWords)
+		// scanner.Split(bufio.ScanWords)
 		for scanner.Scan() {
 			token := scanner.Text()
 
-			if token == "import" {
-				parseImport(scanner)
+			if strings.Contains(token, "from ") {
+				path := strings.SplitAfter(token, "from ")
+				i := jsImport{
+					FromPath: path[1],
+				}
+				jsf.Imports = append(jsf.Imports, i)
 			}
 
 		}
-	}
-}
-
-func parseImport(scanner *bufio.Scanner) {
-	for scanner.Scan() {
-		token := scanner.Text()
-		if token == "from" {
-			scanner.Scan()
-			// path := scanner.Text()
-			// fmt.Println(path)
-			break
-		}
-
-		if strings.Contains(token, "{") {
-			fmt.Println(token)
-			// parseNamedImports(scanner)
-		} else {
-			fmt.Println(token)
-		}
-
-	}
-}
-
-func parseNamedImports(scanner *bufio.Scanner) {
-	for scanner.Scan() {
-		token := scanner.Text()
-		if strings.Contains(token, "}") {
-			break
-		}
-
 	}
 }
