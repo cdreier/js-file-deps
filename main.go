@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha1"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -20,8 +21,10 @@ func main() {
 }
 
 var rootHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	holder := dataHolder{}
-	filepath.Walk("./example", holder.walk)
+	holder := dataHolder{
+		rootDir: "./example",
+	}
+	filepath.Walk(holder.rootDir, holder.walk)
 
 	t, _ := template.ParseFiles("frontend/index.html")
 	t.Execute(w, holder)
@@ -30,13 +33,21 @@ var rootHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 const fileExtension = ".js"
 
 type dataHolder struct {
-	Data []JSFile `json:"data,omitempty"`
+	Data    []JSFile `json:"data,omitempty"`
+	rootDir string
+}
+
+func buildHash(in string) string {
+	sha := sha1.New()
+	sha.Write([]byte(in))
+	return fmt.Sprintf("%x\n", sha.Sum(nil))
 }
 
 func (holder *dataHolder) walk(path string, info os.FileInfo, err error) error {
 	if strings.HasSuffix(path, fileExtension) {
 		jsf := JSFile{
 			Path: path,
+			Hash: buildHash(path),
 		}
 		fmt.Println("parsing ... ", path)
 		jsf.parse(path)
