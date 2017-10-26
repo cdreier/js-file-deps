@@ -24,13 +24,22 @@
     // create an array with nodes
     var nodes = new vis.DataSet(rawData);
 
+
+    var edgesData = rawData.reduce((edges, current) => {
+      return [
+        ...edges,
+        ...current.imports.map(data => {
+
+          return {
+            from: current.id,
+            to: data.id
+          }
+        })
+      ]
+    }, [])
+
     // create an array with edges
-    var edges = new vis.DataSet([
-      { from: 1, to: 3 },
-      { from: 1, to: 2 },
-      { from: 2, to: 4 },
-      { from: 2, to: 5 }
-    ]);
+    var edges = new vis.DataSet(edgesData);
 
     // create a network
     var container = document.getElementById('network');
