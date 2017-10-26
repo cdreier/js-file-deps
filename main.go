@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,26 +15,35 @@ import (
 
 func main() {
 
+	rootDir := os.Args[1:]
+	_, err := os.Stat(rootDir[0])
+	if err != nil {
+		log.Fatal("argument needs to be valid directory")
+	}
+	if os.IsNotExist(err) {
+		log.Fatal("argument needs to be valid directory")
+	}
+
+	holder := dataHolder{
+		rootDir: string(rootDir[0]),
+	}
+
 	box := packr.NewBox("./frontend/assets/")
 	fs := http.FileServer(box)
-	// fs := http.FileServer(http.Dir("frontend/assets/"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/", holder.rootHandler)
 
 	fmt.Println("starting server on port 8085")
 	http.ListenAndServe(":8085", nil)
 }
 
-var rootHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	holder := dataHolder{
-		rootDir: "./example",
-	}
+func (holder *dataHolder) rootHandler(w http.ResponseWriter, r *http.Request) {
 	filepath.Walk(holder.rootDir, holder.walk)
 
 	box := packr.NewBox("./frontend")
 	t, _ := template.New("index").Parse(box.String("index.html"))
 	t.Execute(w, holder)
-})
+}
 
 const fileExtension = ".js"
 
