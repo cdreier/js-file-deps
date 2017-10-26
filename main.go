@@ -8,11 +8,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/gobuffalo/packr"
 )
 
 func main() {
 
-	fs := http.FileServer(http.Dir("frontend/assets/"))
+	box := packr.NewBox("./frontend/assets/")
+	fs := http.FileServer(box)
+	// fs := http.FileServer(http.Dir("frontend/assets/"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	http.HandleFunc("/", rootHandler)
 
@@ -26,7 +30,8 @@ var rootHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	}
 	filepath.Walk(holder.rootDir, holder.walk)
 
-	t, _ := template.ParseFiles("frontend/index.html")
+	box := packr.NewBox("./frontend")
+	t, _ := template.New("index").Parse(box.String("index.html"))
 	t.Execute(w, holder)
 })
 
