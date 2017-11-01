@@ -38,6 +38,7 @@ func main() {
 }
 
 func (holder *dataHolder) rootHandler(w http.ResponseWriter, r *http.Request) {
+	holder.Data = make([]JSFile, 0)
 	filepath.Walk(holder.rootDir, holder.walk)
 
 	box := packr.NewBox("./frontend")

@@ -7,52 +7,68 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
 
-  <link rel="stylesheet" href="/assets/vis.min.css" type="text/css"></link>
-  <script src="/assets/vis.min.js" charset="UTF-8"></script>
+  <script src="/assets/sigma.min.js" charset="UTF-8"></script>
+  <script src="/assets/sigma.layout.noverlap.min.js" charset="UTF-8"></script>
+  <style>
+    #graph-container {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      position: absolute;
+    }
+  </style>
 </head>
 
 <body>
 
-  <div id="network"></div>
-
-  <hr/> 
+  <div id="graph-container"></div>
 
   <script type="text/javascript">
+    // var c = document.getElementById("graph-container")
+    // c.style.height = window.outerHeight +"px";
 
     var rawData = {{.Data}};
 
-    // create an array with nodes
-    var nodes = new vis.DataSet(rawData);
+    var nodeIDs = []
 
+    var g = {
+      nodes: rawData.map(n => {
+        nodeIDs.push(n.id)
+        n.color = "#333"
+        n.size = 3
+        return n
+      }),
+      edges: rawData.reduce((all, curr) => {
 
-    var edgesData = rawData.reduce((edges, current) => {
-      return [
-        ...edges,
-        ...current.imports.map(data => {
+        if(!curr.imports){
+          return all
+        }
 
-          return {
-            from: current.id,
-            to: data.id
-          }
-        })
-      ]
-    }, [])
+        var imports = curr.imports
+          .filter(i => nodeIDs.indexOf(i.id) > -1) 
+          .map(i => {
+            return {
+              id: curr.id + i.id,
+              source: curr.id,
+              target: i.id,
+            }
+          })
 
-    // create an array with edges
-    var edges = new vis.DataSet(edgesData);
+        return [
+          ...all,
+          ...imports,
+        ]
+        
+      }, [])
+    }
 
-    // create a network
-    var container = document.getElementById('network');
+    console.log(g)
 
-    // provide the data in the vis format
-    var data = {
-      nodes: nodes,
-      edges: edges
-    };
-    var options = {};
-
-    // initialize your network!
-    var network = new vis.Network(container, data, options);
+    s = new sigma({
+      graph: g,
+      container: 'graph-container'
+    });
   </script>
 
 </body>
