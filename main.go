@@ -77,9 +77,10 @@ func buildHash(in string) string {
 
 func (holder *dataHolder) walk(path string, info os.FileInfo, err error) error {
 	if strings.HasSuffix(path, fileExtension) {
+		smallPath := strings.Replace(path, holder.rootDir, "", 1)
 		jsf := JSFile{
-			Path: path,
-			Hash: buildHash(path),
+			Path: smallPath,
+			Hash: buildHash(smallPath),
 		}
 		fmt.Println("parsing ... ", path)
 		jsf.parse(path)

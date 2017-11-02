@@ -27,6 +27,7 @@
 
   <script type="text/javascript">
     var rawData = {{.Data}};
+    var positionMultiplyer = 0
   </script>
 
   <script src="/assets/data.js" charset="UTF-8"></script>
@@ -37,31 +38,32 @@
       graph: g,
       container: 'graph-container',
       settings: {
-        minNodeSize: 4,
-        maxNodeSize: 2,
+        minNodeSize: 8,
+        maxNodeSize: 5,
         minEdgeSize: 1,
         maxEdgeSize: 1
       }
     });
 
     var noverlapListener = s.configNoverlap({
-      nodeMargin: 0.1,
+      nodeMargin: 2,
+      speed: 5,
       scaleNodes: 1.05,
       gridSize: 75,
       easing: 'quadraticInOut', // animation transition function
-      duration: 10000   // animation duration. Long here for the purposes of this example only
+      duration: 1000   // animation duration. Long here for the purposes of this example only
     });
 
     // Bind the events:
-    noverlapListener.bind('start stop interpolate', function(e) {
-      console.log(e.type);
-      if(e.type === 'start') {
-        console.time('noverlap');
-      }
-      if(e.type === 'interpolate') {
-        console.timeEnd('noverlap');
-      }
-    });
+    // noverlapListener.bind('start stop interpolate', function(e) {
+    //   console.log(e.type);
+    //   if(e.type === 'start') {
+    //     console.time('noverlap');
+    //   }
+    //   if(e.type === 'interpolate') {
+    //     console.timeEnd('noverlap');
+    //   }
+    // });
     // Start the layout:
     s.startNoverlap();
   </script>

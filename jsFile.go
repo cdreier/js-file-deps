@@ -30,7 +30,7 @@ type jsExport struct {
 }
 
 func (jsf *JSFile) fullPathHash(path string) string {
-	trimmed := strings.Trim(path, "'")
+	trimmed := strings.Trim(path, "';")
 	if strings.HasPrefix(trimmed, ".") {
 		fullpath := filepath.Join(filepath.Dir(jsf.Path), trimmed) + fileExtension
 		return buildHash(fullpath)
@@ -55,7 +55,6 @@ func (jsf *JSFile) parse(path string) {
 					FromPath: path[1],
 					Hash:     jsf.fullPathHash(path[1]),
 				}
-				jsf.fullPathHash(path[1])
 				jsf.Imports = append(jsf.Imports, i)
 			}
 

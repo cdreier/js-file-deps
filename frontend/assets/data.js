@@ -1,12 +1,12 @@
 var nodeIDs = []
 
 var g = {
-  nodes: rawData.map(n => {
+  nodes: rawData.map((n, i) => {
     nodeIDs.push(n.id)
     n.color = "#333"
-    n.size = 0
-    n.x = 0
-    n.y = 0
+    n.size = 1
+    n.x = Math.sin(i * 0.1) * positionMultiplyer
+    n.y = Math.cos(i * 0.1) * positionMultiplyer
     return n
   }),
   edges: rawData.reduce((all, curr) => {

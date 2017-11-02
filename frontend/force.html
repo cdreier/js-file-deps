@@ -8,7 +8,7 @@
   <title>Document</title>
 
   <script src="/assets/sigma.min.js" charset="UTF-8"></script>
-  <script src="/assets/sigma.plugins.animate.min.js" charset="UTF-8"></script>
+  <!-- <script src="/assets/sigma.plugins.dragNodes.min.js" charset="UTF-8"></script> -->
   <script src="/assets/sigma.layout.forceAtlas2.min.js" charset="UTF-8"></script>
   <style>
     #graph-container {
@@ -27,6 +27,7 @@
 
   <script type="text/javascript">
     var rawData = {{.Data}};
+    var positionMultiplyer = 1
   </script>
 
   <script src="/assets/data.js" charset="UTF-8"></script>
@@ -37,11 +38,23 @@
       graph: g,
       container: 'graph-container',
       settings: {
-        drawEdges: false
+        drawEdges: true,
+        drawLabels: true
       }
     });
 
-    s.startForceAtlas2({worker: true, barnesHutOptimize: false});
+    // sigma.plugins.dragNodes(s, s.renderers[0]);
+
+    s.startForceAtlas2({
+      worker: true, 
+      linLogMode: true,
+      gravity: 0.5,
+      // adjustSizes: true,
+      // outboundAttractionDistribution: true,
+      // edgeWeightInfluence: 1,
+      // startingIterations: 50,
+      barnesHutOptimize: true
+    });
   </script>
 
 </body>
