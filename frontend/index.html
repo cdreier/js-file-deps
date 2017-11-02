@@ -3,104 +3,20 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=100%, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>Start</title>
 
-  <script src="/assets/sigma.min.js" charset="UTF-8"></script>
-  <script src="/assets/sigma.plugins.animate.min.js" charset="UTF-8"></script>
-  <script src="/assets/sigma.layout.noverlap.min.js" charset="UTF-8"></script>
-  <style>
-    #graph-container {
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      position: absolute;
-    }
-  </style>
 </head>
 
 <body>
 
-  <div id="graph-container"></div>
+  <h1>choose version</h1>
 
-  <script type="text/javascript">
-    // var c = document.getElementById("graph-container")
-    // c.style.height = window.outerHeight +"px";
-
-    var rawData = {{.Data}};
-
-    var nodeIDs = []
-
-    var g = {
-      nodes: rawData.map(n => {
-        nodeIDs.push(n.id)
-        n.color = "#333"
-        n.size = 3
-        n.x = 3
-        n.y = 3
-        return n
-      }),
-      edges: rawData.reduce((all, curr) => {
-
-        if(!curr.imports){
-          return all
-        }
-
-        var imports = curr.imports
-          .filter(i => nodeIDs.indexOf(i.id) > -1) 
-          .map(i => {
-            return {
-              id: curr.id + i.id,
-              source: curr.id,
-              target: i.id,
-            }
-          })
-
-        return [
-          ...all,
-          ...imports,
-        ]
-        
-      }, [])
-    }
-
-    console.log(g)
-
-    s = new sigma({
-      graph: g,
-      container: 'graph-container',
-      settings: {
-        minNodeSize: 4,
-        maxNodeSize: 2,
-        minEdgeSize: 1,
-        maxEdgeSize: 1
-      }
-    });
-
-    var noverlapListener = s.configNoverlap({
-      nodeMargin: 0.1,
-      scaleNodes: 1.05,
-      gridSize: 75,
-      easing: 'quadraticInOut', // animation transition function
-      duration: 10000   // animation duration. Long here for the purposes of this example only
-    });
-
-    // Bind the events:
-    noverlapListener.bind('start stop interpolate', function(e) {
-      console.log(e.type);
-      if(e.type === 'start') {
-        console.time('noverlap');
-      }
-      if(e.type === 'interpolate') {
-        console.timeEnd('noverlap');
-      }
-    });
-    // Start the layout:
-    s.startNoverlap();
-  </script>
-
+  <p>
+    <a href="/noverlap">noverlap</a>
+    <a href="/force">force atlas</a>
+  </p>
 </body>
 
 </html>

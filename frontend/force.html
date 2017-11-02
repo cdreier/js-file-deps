@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+
+  <script src="/assets/sigma.min.js" charset="UTF-8"></script>
+  <script src="/assets/sigma.plugins.animate.min.js" charset="UTF-8"></script>
+  <script src="/assets/sigma.layout.forceAtlas2.min.js" charset="UTF-8"></script>
+  <style>
+    #graph-container {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      position: absolute;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="graph-container"></div>
+
+  <script type="text/javascript">
+    var rawData = {{.Data}};
+  </script>
+
+  <script src="/assets/data.js" charset="UTF-8"></script>
+
+  <script type="text/javascript">
+
+    s = new sigma({
+      graph: g,
+      container: 'graph-container',
+      settings: {
+        drawEdges: false
+      }
+    });
+
+    s.startForceAtlas2({worker: true, barnesHutOptimize: false});
+  </script>
+
+</body>
+
+</html>

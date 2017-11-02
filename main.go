@@ -31,19 +31,35 @@ func main() {
 	box := packr.NewBox("./frontend/assets/")
 	fs := http.FileServer(box)
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	http.HandleFunc("/", holder.rootHandler)
+	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/force", holder.force)
+	http.HandleFunc("/noverlap", holder.noverlap)
 
 	fmt.Println("starting server on port 8085")
 	http.ListenAndServe(":8085", nil)
 }
 
-func (holder *dataHolder) rootHandler(w http.ResponseWriter, r *http.Request) {
+func (holder *dataHolder) runTemplate(w http.ResponseWriter, html string) {
 	holder.Data = make([]JSFile, 0)
 	filepath.Walk(holder.rootDir, holder.walk)
 
 	box := packr.NewBox("./frontend")
-	t, _ := template.New("index").Parse(box.String("index.html"))
+	t, _ := template.New(html).Parse(box.String(html + ".html"))
 	t.Execute(w, holder)
+}
+
+func (holder *dataHolder) force(w http.ResponseWriter, r *http.Request) {
+	holder.runTemplate(w, "force")
+}
+
+func (holder *dataHolder) noverlap(w http.ResponseWriter, r *http.Request) {
+	holder.runTemplate(w, "noverlap")
+}
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	box := packr.NewBox("./frontend")
+	t, _ := template.New("index").Parse(box.String("index.html"))
+	t.Execute(w, nil)
 }
 
 const fileExtension = ".js"
