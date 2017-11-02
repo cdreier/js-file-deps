@@ -1,4 +1,5 @@
 var nodeIDs = []
+var edgeIDs = []
 
 var g = {
   nodes: rawData.map((n, i) => {
@@ -17,9 +18,12 @@ var g = {
 
     var imports = curr.imports
       .filter(i => nodeIDs.indexOf(i.id) > -1)
+      .filter(i => edgeIDs.indexOf(curr.id + i.id) < 0)
       .map(i => {
+        var eID = curr.id + i.id
+        edgeIDs.push(eID)
         return {
-          id: curr.id + i.id,
+          id: eID,
           source: curr.id,
           target: i.id,
         }
