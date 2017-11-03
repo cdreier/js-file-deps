@@ -18,10 +18,14 @@ var g = {
 
     var imports = curr.imports
       .filter(i => nodeIDs.indexOf(i.id) > -1)
-      .filter(i => edgeIDs.indexOf(curr.id + i.id) < 0)
+      .filter(i => {
+        var eID = curr.id + i.id
+        var go = edgeIDs.indexOf(eID) < 0
+        edgeIDs.push(eID)
+        return go
+      })
       .map(i => {
         var eID = curr.id + i.id
-        edgeIDs.push(eID)
         return {
           id: eID,
           source: curr.id,
