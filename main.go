@@ -2,12 +2,12 @@ package main
 
 import (
 	"crypto/sha1"
+	"flag"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/packr"
@@ -15,17 +15,19 @@ import (
 
 func main() {
 
-	rootDir := os.Args[1:]
-	_, err := os.Stat(rootDir[0])
-	if err != nil {
-		log.Fatal("argument needs to be valid directory")
-	}
-	if os.IsNotExist(err) {
-		log.Fatal("argument needs to be valid directory")
+	excludes := flag.String("excludes", "", "comma seperated strings")
+	flag.Parse()
+	rootDir := flag.Args()
+	checkRootDir(rootDir[0])
+
+	excludesList := make([]string, 0)
+	if len(*excludes) > 0 {
+		excludesList = strings.Split(*excludes, ",")
 	}
 
 	holder := dataHolder{
-		rootDir: string(rootDir[0]),
+		rootDir:  string(rootDir[0]),
+		excludes: excludesList,
 	}
 
 	box := packr.NewBox("./frontend/assets/")
@@ -39,21 +41,14 @@ func main() {
 	http.ListenAndServe(":8085", nil)
 }
 
-func (holder *dataHolder) runTemplate(w http.ResponseWriter, html string) {
-	holder.Data = make([]JSFile, 0)
-	filepath.Walk(holder.rootDir, holder.walk)
-
-	box := packr.NewBox("./frontend")
-	t, _ := template.New(html).Parse(box.String(html + ".html"))
-	t.Execute(w, holder)
-}
-
-func (holder *dataHolder) force(w http.ResponseWriter, r *http.Request) {
-	holder.runTemplate(w, "force")
-}
-
-func (holder *dataHolder) noverlap(w http.ResponseWriter, r *http.Request) {
-	holder.runTemplate(w, "noverlap")
+func checkRootDir(dir string) {
+	_, err := os.Stat(dir)
+	if err != nil {
+		log.Fatal("argument needs to be valid directory")
+	}
+	if os.IsNotExist(err) {
+		log.Fatal("argument needs to be valid directory")
+	}
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,27 +59,8 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 const fileExtension = ".js"
 
-type dataHolder struct {
-	Data    []JSFile `json:"data,omitempty"`
-	rootDir string
-}
-
 func buildHash(in string) string {
 	sha := sha1.New()
 	sha.Write([]byte(in))
 	return fmt.Sprintf("%x\n", sha.Sum(nil))
-}
-
-func (holder *dataHolder) walk(path string, info os.FileInfo, err error) error {
-	if strings.HasSuffix(path, fileExtension) {
-		smallPath := strings.Replace(path, holder.rootDir, "", 1)
-		jsf := JSFile{
-			Path: smallPath,
-			Hash: buildHash(smallPath),
-		}
-		fmt.Println("parsing ... ", path)
-		jsf.parse(path)
-		holder.Data = append(holder.Data, jsf)
-	}
-	return nil
 }
