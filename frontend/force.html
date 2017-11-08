@@ -77,24 +77,38 @@
     });
 
     s.bind('clickNode', (node) => {
-      // console.log(node)
+      console.log(node)
       var infoContainer = document.getElementById('node-info')
 
-      var file = node.data.node.label
+      var fileName = node.data.node.label
       var imports = []
-      if ( node.data.node.imports && node.data.node.imports.length > 0 )
-        var imports = node.data.node.imports.map(i => (
-          `<p class="file">${i.from_path.replace(/[']+/g, '')}</p>`
-        ))
+      if ( node.data.node.imports && node.data.node.imports.length > 0 ) {
+        var imports = node.data.node.imports.map(i => {
+          var file = document.createElement('p')
+          file.className = 'file'
+          
+          var importPath = i.from_path.replace(/[']+/g, '')
+          file.innerHTML = importPath
 
-      infoContainer.innerHTML = `
-        <h3>${file}</h3>
-        <h2><strong>Imports</strong></h2>
-        ${imports.join('')}
-      `
+          return file
+        })
+      }
+
+      var file = document.createElement('h3')
+      file.innerHTML = fileName
+
+      var importsHeader = document.createElement('h2')
+      importsHeader.innerHTML = 'Imports'
+
+      infoContainer.innerHTML = ''
+      infoContainer.appendChild(file)
+      infoContainer.appendChild(importsHeader)
+      imports.forEach(i => infoContainer.appendChild(i))
     })
 
-    // console.log(s.graph.nodes())
+    console.log(s.graph.nodes())
+    console.log(s.graph.edges())
+
   </script>
 
 </body>
