@@ -15,5 +15,5 @@ go build
 ```
 
 ```
-<<build-file>> --exclude=node_modules,__tests__,otherFolder ./project-folder-you-want-to-analyze
+<<build-file>> --excludes=node_modules,__tests__,otherFolder ./project-folder-you-want-to-analyze
 ```
