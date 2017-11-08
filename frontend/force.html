@@ -34,6 +34,8 @@
     p { margin: 0; }
     .file { margin-bottom: 6px; }
     .subHeadline { margin-top: 10px; margin-bottom: 10px; }
+    .file.underline { color: #2196F3; text-decoration: underline; cursor: pointer; }
+    .file.underline:hover { color: #0D47A1 }
   </style>
 </head>
 
@@ -76,19 +78,41 @@
       barnesHutOptimize: true
     });
 
-    s.bind('clickNode', (node) => {
-      console.log(node)
+    function resolveNode(_id) {
+      var id = _id.split('\n').shift()
+      var node = null
+      s.graph.nodes().forEach(n => {
+        var nodeId = n.id.split('\n').shift()
+        if (nodeId === id)
+          node = n
+      })
+      return node
+    }
+
+    function processInfo(fileName, _imports) {
       var infoContainer = document.getElementById('node-info')
 
-      var fileName = node.data.node.label
       var imports = []
-      if ( node.data.node.imports && node.data.node.imports.length > 0 ) {
-        var imports = node.data.node.imports.map(i => {
+      if ( _imports && _imports.length > 0 ) {
+        imports = _imports.map(i => {
           var file = document.createElement('p')
           file.className = 'file'
           
           var importPath = i.from_path.replace(/[']+/g, '')
           file.innerHTML = importPath
+
+          if (importPath.startsWith('.')) {
+            file.className += ' underline'
+            file.addEventListener('click', () => {
+              var n = resolveNode(i.id)
+              if ( n ) {
+                processInfo(
+                  n.label,
+                  n.imports
+                )
+              }
+            })
+          }
 
           return file
         })
@@ -104,6 +128,13 @@
       infoContainer.appendChild(file)
       infoContainer.appendChild(importsHeader)
       imports.forEach(i => infoContainer.appendChild(i))
+    }
+
+    s.bind('clickNode', (node) => {
+      processInfo(
+        node.data.node.label,
+        node.data.node.imports
+      )
     })
 
     console.log(s.graph.nodes())
