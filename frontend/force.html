@@ -18,12 +18,32 @@
       right: 0;
       position: absolute;
     }
+
+    #node-info {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      bottom: 30px;
+      padding: 30px;
+      width: 400px;
+      background-color: #efefef;
+      border: 1px solid #ededed;
+      box-sizing: border-box;
+    }
+
+    p { margin: 0; }
+    .file { margin-bottom: 6px; }
+    .subHeadline { margin-top: 10px; margin-bottom: 10px; }
   </style>
 </head>
 
 <body>
 
   <div id="graph-container"></div>
+
+  <div id="node-info">
+    <h1>Please Click on a node</h1>
+  </div>
 
   <script type="text/javascript">
     var rawData = {{.Data}};
@@ -55,6 +75,26 @@
       // startingIterations: 50,
       barnesHutOptimize: true
     });
+
+    s.bind('clickNode', (node) => {
+      // console.log(node)
+      var infoContainer = document.getElementById('node-info')
+
+      var file = node.data.node.label
+      var imports = []
+      if ( node.data.node.imports && node.data.node.imports.length > 0 )
+        var imports = node.data.node.imports.map(i => (
+          `<p class="file">${i.from_path.replace(/[']+/g, '')}</p>`
+        ))
+
+      infoContainer.innerHTML = `
+        <h3>${file}</h3>
+        <h2><strong>Imports</strong></h2>
+        ${imports.join('')}
+      `
+    })
+
+    // console.log(s.graph.nodes())
   </script>
 
 </body>
