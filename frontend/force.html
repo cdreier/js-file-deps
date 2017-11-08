@@ -29,9 +29,14 @@
       background-color: #efefef;
       border: 1px solid #ededed;
       box-sizing: border-box;
+      box-shadow: 0 0 5px #999;
     }
 
     p { margin: 0; }
+    #file {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
     .file { margin-bottom: 6px; }
     .subHeadline { margin-top: 10px; margin-bottom: 10px; }
     .file.underline { color: #2196F3; text-decoration: underline; cursor: pointer; }
@@ -119,6 +124,8 @@
       }
 
       var file = document.createElement('h3')
+      file.id = 'file'
+      file.title = fileName
       file.innerHTML = fileName
 
       var importsHeader = document.createElement('h2')
@@ -137,8 +144,8 @@
       )
     })
 
-    console.log(s.graph.nodes())
-    console.log(s.graph.edges())
+    // console.log(s.graph.nodes())
+    // console.log(s.graph.edges())
 
   </script>
 
