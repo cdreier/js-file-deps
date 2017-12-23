@@ -18,12 +18,39 @@
       right: 0;
       position: absolute;
     }
+
+    #node-info {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      bottom: 30px;
+      padding: 30px;
+      width: 400px;
+      background-color: #efefef;
+      border: 1px solid #ededed;
+      box-sizing: border-box;
+      box-shadow: 0 0 5px #999;
+    }
+
+    p { margin: 0; }
+    #file {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .file { margin-bottom: 6px; }
+    .subHeadline { margin-top: 10px; margin-bottom: 10px; }
+    .file.underline { color: #2196F3; text-decoration: underline; cursor: pointer; }
+    .file.underline:hover { color: #0D47A1 }
   </style>
 </head>
 
 <body>
 
   <div id="graph-container"></div>
+
+  <div id="node-info">
+    <h1>Please Click on a node</h1>
+  </div>
 
   <script type="text/javascript">
     var rawData = {{.Data}};
@@ -55,6 +82,71 @@
       // startingIterations: 50,
       barnesHutOptimize: true
     });
+
+    function resolveNode(_id) {
+      var id = _id.split('\n').shift()
+      var node = null
+      s.graph.nodes().forEach(n => {
+        var nodeId = n.id.split('\n').shift()
+        if (nodeId === id)
+          node = n
+      })
+      return node
+    }
+
+    function processInfo(fileName, _imports) {
+      var infoContainer = document.getElementById('node-info')
+
+      var imports = []
+      if ( _imports && _imports.length > 0 ) {
+        imports = _imports.map(i => {
+          var file = document.createElement('p')
+          file.className = 'file'
+          
+          var importPath = i.from_path.replace(/[']+/g, '')
+          file.innerHTML = importPath
+
+          if (importPath.startsWith('.')) {
+            file.className += ' underline'
+            file.addEventListener('click', () => {
+              var n = resolveNode(i.id)
+              if ( n ) {
+                processInfo(
+                  n.label,
+                  n.imports
+                )
+              }
+            })
+          }
+
+          return file
+        })
+      }
+
+      var file = document.createElement('h3')
+      file.id = 'file'
+      file.title = fileName
+      file.innerHTML = fileName
+
+      var importsHeader = document.createElement('h2')
+      importsHeader.innerHTML = 'Imports'
+
+      infoContainer.innerHTML = ''
+      infoContainer.appendChild(file)
+      infoContainer.appendChild(importsHeader)
+      imports.forEach(i => infoContainer.appendChild(i))
+    }
+
+    s.bind('clickNode', (node) => {
+      processInfo(
+        node.data.node.label,
+        node.data.node.imports
+      )
+    })
+
+    // console.log(s.graph.nodes())
+    // console.log(s.graph.edges())
+
   </script>
 
 </body>
